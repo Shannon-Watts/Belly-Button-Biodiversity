@@ -10,12 +10,48 @@
 //         console.log(data);
 //     });
 
+function selDataset(){
+    var selData = d3.select("#selDataset");
+
+    d3.json("samples.json").then((data) => {
+        var sampleNames = data.names;
+
+        sampleNames.forEach((sample) => {
+            selData.append("option").text(sample).property("value", sample);
+        });
+        // these are the samples
+        var firstSample = sampleNames[0];
+        chooseSample(firstSample);
+        plotCharts(firstSample);
+    });
+
+}
+
+selDataset();
+
+function optionChanged(sample) {
+    chooseSample(sample);
+    plotCharts(sample);
+}
+
+function chooseSample(sample){
+    d3.json("samples.json").then((data) => {
+    var metadata = data.metadata;
+    var resultsarray = metadata.filter(sampleobj => sampleobj.id == sample);
+    var results = resultsarray[0]
+    var panel = d3.select("#sample-metadata");
+    panel.html("");
+    Object.entries(results).forEach(([key, value]) => {
+        panel.append("h6").text(`${key.toUpperCase()}:${value}`);
+    });
+});
+}
 
 // Function
 function plotCharts(sample){
     d3.json("samples.json").then((data) => {
         var samples = data.samples;
-        var sample_array = sample.filter(obj => obj.id == sample);
+        var sample_array = samples.filter(obj => obj.id == sample);
         var sample_array_res = sample_array[0];
 
         // Bar Chart
@@ -64,20 +100,4 @@ function plotCharts(sample){
     });
 }
 
-function selDataset(){
-    var selData = d3.select("#selDataset");
 
-    d3.json("samples.json").then((data) => {
-        var sampleNames = data.names;
-
-        sampleNames.forEach((sample) => {
-            selData.append("option").text(sample).property("value", sample);
-        });
-        // these are the samples
-        var firstSample = sampleNames[0];
-        plotCharts(firstSample);
-    });
-
-}
-
-selDataset();
